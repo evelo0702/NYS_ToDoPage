@@ -4,6 +4,7 @@ import { BoardStore } from "../types";
 
 export const useBoardStore = create<BoardStore>((set) => ({
   boards: [],
+  labelList: [],
   setBoards: (boards) => set({ boards }),
   addBoard: (board) => set((state) => ({ boards: [...state.boards, board] })),
   updateBoard: (updatedBoard) =>
@@ -16,4 +17,5 @@ export const useBoardStore = create<BoardStore>((set) => ({
     set((state) => ({
       boards: state.boards.filter((board) => board._id !== boardId),
     })),
+  setLabels: (labels) => set({ labelList: labels }),
 }));
