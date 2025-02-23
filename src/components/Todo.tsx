@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { Todo as TodoType } from "../types";
 
 interface TodoProps {
@@ -8,7 +7,6 @@ interface TodoProps {
 }
 
 export default function Todo({ data }: TodoProps) {
-  const [labelId] = useState("67b9a48f67b4270871740d0c");
   return (
     <div className="bg-gray-100 p-3 rounded-lg shadow-sm">
       <div className="flex justify-between">
@@ -25,14 +23,14 @@ export default function Todo({ data }: TodoProps) {
       <div className="mt-2 flex flex-wrap gap-1">
         <span
           className={`text-xs px-2 py-1 ${
-            (labelId === "67b9a48f67b4270871740d0b" && "bg-red-200") ||
-            (labelId === "67b9a48f67b4270871740d0c" && "bg-sky-200") ||
-            (labelId === "67b9a48f67b4270871740d0d" && "bg-green-200") ||
-            (labelId === "67b9a48f67b4270871740d0e" && "bg-yellow-200") ||
-            (labelId === "67b9a48f67b4270871740d0f" && "bg-indigo-200")
+            (data.label.id === "67b9a48f67b4270871740d0b" && "bg-red-200") ||
+            (data.label.id === "67b9a48f67b4270871740d0c" && "bg-sky-200") ||
+            (data.label.id === "67b9a48f67b4270871740d0d" && "bg-green-200") ||
+            (data.label.id == "67b9a48f67b4270871740d0e" && "bg-yellow-200") ||
+            (data.label.id === "67b9a48f67b4270871740d0f" && "bg-indigo-200")
           } rounded-md`}
         >
-          작업 전 업무
+          {data.label.title}
         </span>
       </div>
       <p className="text-lg text-gray-600 mt-1 line-clamp-2">{data.content}</p>
