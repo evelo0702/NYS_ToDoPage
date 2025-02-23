@@ -16,7 +16,7 @@ export default function Slider({ children, scrollContainerRef }: SliderProps) {
     }
   };
   return (
-    <div>
+    <>
       <button
         className="absolute left-2 z-10 p-3 "
         onClick={() => scroll("left")}
@@ -32,6 +32,6 @@ export default function Slider({ children, scrollContainerRef }: SliderProps) {
       >
         ▶
       </button>
-    </div>
+    </>
   );
 }
