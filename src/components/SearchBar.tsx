@@ -24,7 +24,7 @@ export default function SearchBar({
         type="text"
         value={searchQuery}
         onChange={handleSearchChange}
-        placeholder="검색어를 입력하세요..."
+        placeholder="검색어를 입력하세요"
         className="p-2 w-full border-none outline-none"
       />
       {searchQuery && (
