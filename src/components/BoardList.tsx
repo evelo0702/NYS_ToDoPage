@@ -7,7 +7,7 @@ import SearchBar from "./SearchBar";
 import SearchList from "./SearchList";
 import Slider from "./Slider";
 import { useBoardStore } from "../store/globalStore";
-import { filterBoards } from "../lib/filteredBoards";
+import { filterBoards } from "../lib/filterBoards";
 import { v4 as uuidv4 } from "uuid";
 
 interface BoardListProps {
