@@ -29,6 +29,12 @@ export default function BoardComponent({ data }: BoardProps) {
     updateBoard(data._id!, newTitle);
     setEditMode(false);
   };
+  const handleDeleteBoard = () => {
+    const res = confirm("보드를 삭제하시겠습니까?");
+    if (res) {
+      deleteBoard(data._id);
+    }
+  };
 
   return (
     <div className="bg-white rounded-xl shadow-lg p-4 h-full flex flex-col">
@@ -68,8 +74,7 @@ export default function BoardComponent({ data }: BoardProps) {
             )}
             <button
               className="col-span-1 text-red-700 font-bold ms-2"
-              // onClick={() => handleDeleteBoard(data._id)}
-              onClick={() => deleteBoard(data._id!)}
+              onClick={handleDeleteBoard}
             >
               삭제
             </button>
