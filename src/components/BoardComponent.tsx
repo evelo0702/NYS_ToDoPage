@@ -1,31 +1,22 @@
 "use client";
 
 import { useState } from "react";
-import type { BoardWithTodos } from "../types";
 import Todo from "./Todo";
 import { useBoardStore } from "../store/globalStore";
+import TodoAddModal from "./TodoAddModal";
+import { Board as BoardType } from "../types";
 
 interface BoardProps {
-  data: BoardWithTodos;
+  data: BoardType;
 }
 
-export default function Board({ data }: BoardProps) {
+export default function BoardComponent({ data }: BoardProps) {
   const [editMode, setEditMode] = useState(false);
   const [newTitle, setNewTitle] = useState(data.title);
-  const { deleteBoard, updateBoard } = useBoardStore();
-  // const handleDeleteBoard = async (boardId: string) => {
-  //   const cf = confirm("보드를 삭제하시겠습니까?");
-  //   if (cf) {
-  //     const response = await deleteBoard(boardId);
+  const { deleteBoard, updateBoard, labelList } = useBoardStore();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  //     if (response.success) {
-  //       alert(response.message);
-  //     } else {
-  //       alert(`${response.message} (상태 코드: ${response.status})`);
-  //     }
-  //   }
-  // };
-  const handleUpdateBoard = async () => {
+  const handleUpdateBoard = () => {
     if (newTitle.trim() === "") {
       alert("보드명을 입력해주세요");
       return;
@@ -35,17 +26,9 @@ export default function Board({ data }: BoardProps) {
       setEditMode(false);
       return;
     }
-    updateBoard(data._id, newTitle);
+    updateBoard(data._id!, newTitle);
     setEditMode(false);
   };
-
-  // const response = await updateBoard(data._id, newTitle);
-  // if (response.success) {
-  //   alert(response.message);
-  //   setEditMode(false);
-  // } else {
-  //   alert(`${response.message} 상태 코드: ${response.status}`);
-  // }
 
   return (
     <div className="bg-white rounded-xl shadow-lg p-4 h-full flex flex-col">
@@ -86,25 +69,42 @@ export default function Board({ data }: BoardProps) {
             <button
               className="col-span-1 text-red-700 font-bold ms-2"
               // onClick={() => handleDeleteBoard(data._id)}
-              onClick={() => deleteBoard(data._id)}
+              onClick={() => deleteBoard(data._id!)}
             >
               삭제
             </button>
           </div>
         </div>
-        <button className="mt-2 w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition">
+        <button
+          className="mt-2 w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition"
+          onClick={() => {
+            setIsModalOpen(true);
+          }}
+        >
           + 할 일 추가
         </button>
       </div>
       <div className="mt-4 flex-col space-y-2 p-2 h-full overflow-y-auto">
         {data.todos.length > 0 ? (
-          data.todos.map((todo) => <Todo key={todo._id} data={todo} />)
+          data.todos.map((todo) => (
+            <Todo
+              key={`${todo._id}+${todo.title}=${todo.content}`}
+              data={todo}
+            />
+          ))
         ) : (
           <div className="text-gray-400 text-center py-6">
             새로운 할 일을 추가해주세요
           </div>
         )}
       </div>
+      <TodoAddModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        labels={labelList}
+        boardId={data._id!}
+        length={data.todos.length}
+      />
     </div>
   );
 }
