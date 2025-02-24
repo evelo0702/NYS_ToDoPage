@@ -8,6 +8,7 @@ import SearchList from "./SearchList";
 import Slider from "./Slider";
 import { useBoardStore } from "../store/globalStore";
 import { v4 as uuidv4 } from "uuid";
+import { filterBoards } from "../lib/filteredBoards";
 
 interface BoardListProps {
   boardsWithTodos: BoardWithTodos[];
@@ -33,52 +34,7 @@ export default function BoardList({ boardsWithTodos, labels }: BoardListProps) {
     console.log("Boards changed:", boards);
   }, [boards]);
   const filteredBoards = useMemo(() => {
-    return boards
-      .map((board) => {
-        // board.title에 쿼리가 포함되었는지 확인
-        const matchesBoardTitle = searchQuery
-          ? board.title
-              .replace(/\s/g, "")
-              .includes(searchQuery.replace(/\s/g, ""))
-          : true;
-
-        // board.title에 쿼리가 포함된 경우, 모든 todos를 반환하고 label, date로 필터링
-        if (matchesBoardTitle) {
-          const filteredTodos = board.todos.filter((todo) => {
-            const matchesLabel = searchLabel
-              ? todo.label.id === searchLabel._id
-              : true;
-            const matchesDate = searchDate ? todo.date === searchDate : true;
-
-            return matchesLabel && matchesDate;
-          });
-
-          // 필터링된 todos가 존재하면 해당 board 반환
-          return { ...board, todos: filteredTodos };
-        } else {
-          // board.title에 쿼리가 포함되지 않으면, todo의 title이나 content도 필터링
-          const filteredTodos = board.todos.filter((todo) => {
-            const matchesLabel = searchLabel
-              ? todo.label.id === searchLabel._id
-              : true;
-            const matchesQuery = searchQuery
-              ? todo.title
-                  .replace(/\s/g, "")
-                  .includes(searchQuery.replace(/\s/g, "")) ||
-                todo.content
-                  .replace(/\s/g, "")
-                  .includes(searchQuery.replace(/\s/g, ""))
-              : true;
-            const matchesDate = searchDate ? todo.date === searchDate : true;
-
-            return matchesLabel && matchesQuery && matchesDate;
-          });
-          // 필터링된 todos가 존재하면 해당 board 반환
-          return { ...board, todos: filteredTodos };
-        }
-      })
-      .filter((board) => board !== null)
-      .sort((a, b) => a.order - b.order);
+    return filterBoards(boards, searchLabel, searchQuery, searchDate);
   }, [boards, searchLabel, searchQuery, searchDate]);
 
   const handleAddBoard = async () => {
