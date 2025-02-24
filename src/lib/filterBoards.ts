@@ -33,17 +33,21 @@ export function filterBoards(
         return matchesLabel && matchesQuery && matchesDate;
       });
 
-      // 보드 제목이 검색어와 일치하거나, 필터링된 todo가 하나라도 있으면 유지
-      if (matchesBoardTitle || filteredTodos.length > 0) {
-        return { ...board, todos: filteredTodos };
+      if (
+        (matchesBoardTitle && board.todos.length > 0) ||
+        filteredTodos.length > 0
+      ) {
+        return filteredTodos.length > 0
+          ? { ...board, todos: filteredTodos }
+          : null;
       }
 
-      return null; // 검색 결과가 없으면 제거
+      return null;
     })
-    .filter((board) => board !== null) // `null` 제거
-    .sort((a, b) => a.order - b.order)
+    .filter((board) => board !== null)
+    .sort((a, b) => a!.order - b!.order)
     .map((board) => ({
-      ...board,
-      todos: board.todos.sort((a, b) => a.order - b.order),
+      ...board!,
+      todos: board!.todos.sort((a, b) => a.order - b.order),
     }));
 }
