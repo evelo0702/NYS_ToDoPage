@@ -45,7 +45,7 @@ export function filterBoards(
       return null;
     })
     .filter((board) => board !== null)
-    .sort((a, b) => a!.order - b!.order)
+    .sort((a, b) => a.order - b.order)
     .map((board) => ({
       ...board!,
       todos: board!.todos.sort((a, b) => a.order - b.order),
