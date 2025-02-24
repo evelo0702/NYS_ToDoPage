@@ -3,6 +3,7 @@ export interface Board {
   _id: string;
   title: string;
   order: number;
+  todos: Todo[];
 }
 // 카드 타입
 export interface Todo {
@@ -22,17 +23,32 @@ export interface Label {
 }
 
 // 보드 + 카드
-export interface BoardWithTodos extends Board {
-  todos: Todo[];
-}
 
+interface Action {
+  type: string;
+  payload: any;
+}
 // 스토어 타입
 export interface BoardStore {
-  boards: BoardWithTodos[];
+  boards: Board[];
   labelList: Label[];
-  setBoards: (boards: BoardWithTodos[]) => void;
-  addBoard: (board: BoardWithTodos) => void;
-  updateBoard: (updatedBoard: BoardWithTodos) => void;
-  deleteBoard: (boardId: string) => void;
+  past: Action[]; //undo
+  future: Action[]; // redo
+  setBoards: (boards: Board[]) => void;
   setLabels: (labels: Label[]) => void;
+  addBoard: (board: Board) => void;
+  deleteBoard: (boardId: string) => void;
+  updateBoard: (boardId: string, newTitle: string) => void;
+  undo: () => void;
+  redo: () => void;
+  addTodo: (newTodo: Todo) => void;
+  updateTodo: (boardId: string, todoId: string, updatedTodo: Todo) => void;
+  deleteTodo: (boardId: string, todoId: string) => void;
+}
+
+export interface ApiResponse<T = any> {
+  success: boolean;
+  message: string;
+  status: number;
+  data?: T;
 }
