@@ -11,10 +11,7 @@ export const useBoardStore = create<BoardStore>((set, get) => ({
   addBoard: (board) => {
     const { boards, past } = get();
     set({
-      boards: [...boards, board].map((board) => ({
-        ...board,
-        todos: board.todos.sort((a, b) => a.order - b.order),
-      })),
+      boards: [...boards, board],
 
       past: [...past, { type: "ADD_BOARD", payload: board }],
       future: [],
@@ -26,10 +23,7 @@ export const useBoardStore = create<BoardStore>((set, get) => ({
     const updatedBoards = boards.filter((i) => i._id !== boardId);
 
     set({
-      boards: updatedBoards.map((board) => ({
-        ...board,
-        todos: board.todos.sort((a, b) => a.order - b.order),
-      })),
+      boards: updatedBoards,
 
       past: [...past, { type: "DELETE_BOARD", payload: deletedBoard[0] }],
       future: [],
@@ -43,12 +37,7 @@ export const useBoardStore = create<BoardStore>((set, get) => ({
     const updatedBoard = { ...boardToUpdate, title: newTitle };
 
     set({
-      boards: boards
-        .map((board) => (board._id === id ? updatedBoard : board))
-        .map((board) => ({
-          ...board,
-          todos: board.todos.sort((a, b) => a.order - b.order),
-        })), // boards 배열을 불변성 유지하며 갱신
+      boards: boards.map((board) => (board._id === id ? updatedBoard : board)), // boards 배열을 불변성 유지하며 갱신
       past: [
         ...past,
         {
@@ -71,12 +60,7 @@ export const useBoardStore = create<BoardStore>((set, get) => ({
       todos: [...boardToUpdate.todos, newTodo],
     };
     set({
-      boards: boards
-        .map((i) => (i._id === newTodo.boardId ? updatedBoard : i))
-        .map((board) => ({
-          ...board,
-          todos: board.todos.sort((a, b) => a.order - b.order),
-        })),
+      boards: boards.map((i) => (i._id === newTodo.boardId ? updatedBoard : i)),
       past: [...past, { type: "ADD_TODO", payload: newTodo }],
       future: [],
     });
@@ -89,17 +73,11 @@ export const useBoardStore = create<BoardStore>((set, get) => ({
     const updatedTodos = boardToUpdate.todos.map((todo) =>
       todo._id === todoId ? { ...todo, ...updatedTodo } : todo
     );
-    console.log(updatedTodos);
 
     set({
-      boards: boards
-        .map((board) =>
-          board._id === boardId ? { ...board, todos: updatedTodos } : board
-        )
-        .map((board) => ({
-          ...board,
-          todos: board.todos.sort((a, b) => a.order - b.order),
-        })),
+      boards: boards.map((board) =>
+        board._id === boardId ? { ...board, todos: updatedTodos } : board
+      ),
       past: [...past, { type: "UPDATE_TODO", payload: originalTodo[0] }],
       future: [],
     });
@@ -112,14 +90,9 @@ export const useBoardStore = create<BoardStore>((set, get) => ({
     const updatedTodos = boardToUpdate.todos.filter((i) => i._id !== todoId);
 
     set({
-      boards: boards
-        .map((board) =>
-          board._id === boardId ? { ...board, todos: updatedTodos } : board
-        )
-        .map((board) => ({
-          ...board,
-          todos: board.todos.sort((a, b) => a.order - b.order),
-        })),
+      boards: boards.map((board) =>
+        board._id === boardId ? { ...board, todos: updatedTodos } : board
+      ),
       past: [...past, { type: "DELETE_TODO", payload: { changeTodo } }],
       future: [],
     });
@@ -132,12 +105,7 @@ export const useBoardStore = create<BoardStore>((set, get) => ({
 
     if (lastAction.type === "ADD_BOARD") {
       set({
-        boards: boards
-          .filter((board) => board._id !== lastAction.payload._id)
-          .map((board) => ({
-            ...board,
-            todos: board.todos.sort((a, b) => a.order - b.order),
-          })),
+        boards: boards.filter((board) => board._id !== lastAction.payload._id),
         past: past.slice(0, -1),
         future: [lastAction, ...future],
       });
@@ -156,10 +124,7 @@ export const useBoardStore = create<BoardStore>((set, get) => ({
       );
 
       set({
-        boards: updatedBoards.map((board) => ({
-          ...board,
-          todos: board.todos.sort((a, b) => a.order - b.order),
-        })),
+        boards: updatedBoards,
         past: past.slice(0, -1),
         future: [lastAction, ...future],
       });
@@ -172,16 +137,12 @@ export const useBoardStore = create<BoardStore>((set, get) => ({
       );
 
       set({
-        boards: updatedBoards.map((board) => ({
-          ...board,
-          todos: board.todos.sort((a, b) => a.order - b.order),
-        })),
+        boards: updatedBoards,
         past: past.slice(0, -1),
         future: [lastAction, ...future],
       });
     } else if (lastAction.type === "UPDATE_TODO") {
       const { boardId, _id } = lastAction.payload;
-      console.log(lastAction.payload);
       const changeTodo = boards
         .filter((i) => i._id === boardId)[0]
         .todos.filter((j) => j._id === _id);
@@ -195,20 +156,15 @@ export const useBoardStore = create<BoardStore>((set, get) => ({
             }
           : board
       );
-      console.log(updatedBoards);
-      console.log(changeTodo);
+
       set({
-        boards: updatedBoards.map((board) => ({
-          ...board,
-          todos: board.todos.sort((a, b) => a.order - b.order),
-        })),
+        boards: updatedBoards,
         past: past.slice(0, -1),
         future: [{ ...lastAction, payload: changeTodo[0] }, ...future],
       });
     } else if (lastAction.type === "DELETE_TODO") {
       const { boardId } = lastAction.payload.changeTodo[0];
-      console.log(lastAction.payload.changeTodo);
-      console.log(boardId);
+
       const updatedBoards = boards.map((board) =>
         board._id === boardId
           ? {
@@ -218,10 +174,7 @@ export const useBoardStore = create<BoardStore>((set, get) => ({
           : board
       );
       set({
-        boards: updatedBoards.map((board) => ({
-          ...board,
-          todos: board.todos.sort((a, b) => a.order - b.order),
-        })),
+        boards: updatedBoards,
         past: past.slice(0, -1),
         future: [lastAction, ...future],
       });
@@ -239,12 +192,7 @@ export const useBoardStore = create<BoardStore>((set, get) => ({
       });
     } else if (nextAction.type === "DELETE_BOARD") {
       set({
-        boards: boards
-          .filter((i) => i._id !== nextAction.payload._id)
-          .map((board) => ({
-            ...board,
-            todos: board.todos.sort((a, b) => a.order - b.order),
-          })),
+        boards: boards.filter((i) => i._id !== nextAction.payload._id),
         past: [...past, nextAction],
         future: future.slice(1),
       });
@@ -274,12 +222,10 @@ export const useBoardStore = create<BoardStore>((set, get) => ({
         future: future.slice(1),
       });
     } else if (nextAction.type === "UPDATE_TODO") {
-      console.log(nextAction.payload);
       const { boardId, _id } = nextAction.payload;
       const originalTodo = boards
         .filter((board) => board._id === boardId)[0]
         .todos.filter((i) => i._id === _id);
-      console.log(originalTodo);
       const updatedBoards = boards.map((board) =>
         board._id === boardId
           ? {
@@ -290,30 +236,20 @@ export const useBoardStore = create<BoardStore>((set, get) => ({
             }
           : board
       );
-      console.log(updatedBoards);
       set({
-        boards: updatedBoards.map((board) => ({
-          ...board,
-          todos: board.todos.sort((a, b) => a.order - b.order),
-        })),
+        boards: updatedBoards,
         past: [...past, { ...nextAction, payload: originalTodo[0] }],
         future: future.slice(1),
       });
     } else if (nextAction.type === "DELETE_TODO") {
       const { boardId, _id } = nextAction.payload.changeTodo[0];
-      console.log(nextAction.payload.changeTodo);
-      console.log(boardId);
-      console.log(_id);
       const updatedBoards = boards.map((board) =>
         board._id === boardId
           ? { ...board, todos: board.todos.filter((i) => i._id !== _id) }
           : board
       );
       set({
-        boards: updatedBoards.map((board) => ({
-          ...board,
-          todos: board.todos.sort((a, b) => a.order - b.order),
-        })),
+        boards: updatedBoards,
         past: [...past, nextAction],
         future: future.slice(1),
       });
