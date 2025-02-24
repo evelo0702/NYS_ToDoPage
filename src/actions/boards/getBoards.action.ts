@@ -2,9 +2,8 @@
 
 import { transformObjectId } from "@/src/lib/changeStringId";
 import { connectDB } from "@/src/lib/mongodb";
-import { ApiResponse, Board } from "@/src/types";
 
-export async function getBoardsAction(): Promise<ApiResponse<Board[]>> {
+export async function getBoardsAction() {
   try {
     const db = (await connectDB).db(process.env.MONGO_DBNAME);
     const boardsCollection = db.collection("boards");
