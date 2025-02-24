@@ -41,5 +41,9 @@ export function filterBoards(
       return null; // 검색 결과가 없으면 제거
     })
     .filter((board) => board !== null) // `null` 제거
-    .sort((a, b) => a.order - b.order) as Board[];
+    .sort((a, b) => a.order - b.order)
+    .map((board) => ({
+      ...board,
+      todos: board.todos.sort((a, b) => a.order - b.order),
+    }));
 }
