@@ -2,13 +2,13 @@
 
 import { useState } from "react";
 import { Label } from "../types";
-import { useBoardStore } from "../store/globalStore";
 
 interface SearchListProps {
   searchLabel: Label | null;
   searchDate: string | null;
   setSearchLabel: (label: Label | null) => void;
   setSearchDate: (date: string | null) => void;
+  labels: Label[];
 }
 
 export default function SearchList({
@@ -16,8 +16,8 @@ export default function SearchList({
   searchDate,
   setSearchLabel,
   setSearchDate,
+  labels,
 }: SearchListProps) {
-  const { labelList } = useBoardStore();
   const [isOpen, setIsOpen] = useState(false);
 
   const toggleDropdown = () => setIsOpen(!isOpen);
@@ -34,7 +34,7 @@ export default function SearchList({
   };
 
   return (
-    <div className="relative w-1/3 flex items-center space-x-4 mx-4">
+    <div className="relative w-1/2 flex items-center space-x-4 mx-4">
       <div className="flex-1 ">
         <div
           className="flex items-center justify-between cursor-pointer border p-2 rounded-lg shadow-md bg-white"
@@ -78,7 +78,7 @@ export default function SearchList({
             >
               <div className="w-4 h-4 mr-2 rounded-sm bg-black"></div>전체 업무
             </div>
-            {labelList.map((label: Label) => (
+            {labels .map((label: Label) => (
               <div
                 key={label._id}
                 onClick={() => handleLabelSelect(label)}
