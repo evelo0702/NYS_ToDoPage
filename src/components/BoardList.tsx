@@ -1,21 +1,21 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { BoardWithTodos, Label } from "../types";
-import Board from "./Board";
+import { Board, Label } from "../types";
+import BoardComponent from "./BoardComponent";
 import SearchBar from "./SearchBar";
 import SearchList from "./SearchList";
 import Slider from "./Slider";
 import { useBoardStore } from "../store/globalStore";
-import { v4 as uuidv4 } from "uuid";
 import { filterBoards } from "../lib/filteredBoards";
+import { v4 as uuidv4 } from "uuid";
 
 interface BoardListProps {
-  boardsWithTodos: BoardWithTodos[];
+  BoardsData: Board[] | null;
   labels: Label[];
 }
 
-export default function BoardList({ boardsWithTodos, labels }: BoardListProps) {
+export default function BoardList({ BoardsData, labels }: BoardListProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [searchLabel, setSearchLabel] = useState<Label | null>(null);
   const [searchDate, setSearchDate] = useState<string | null>(null);
@@ -24,24 +24,22 @@ export default function BoardList({ boardsWithTodos, labels }: BoardListProps) {
 
   const { boards, setBoards, setLabels, addBoard, undo, redo, past, future } =
     useBoardStore();
+
   useEffect(() => {
-    if (boardsWithTodos && labels) {
-      setBoards(boardsWithTodos);
+    if (BoardsData && labels) {
+      setBoards(BoardsData);
       setLabels(labels);
     }
-  }, [boardsWithTodos, labels, setBoards, setLabels]);
-  useEffect(() => {
-    console.log("Boards changed:", boards);
-  }, [boards]);
+  }, [BoardsData, labels, setBoards, setLabels]);
+
   const filteredBoards = useMemo(() => {
     return filterBoards(boards, searchLabel, searchQuery, searchDate);
   }, [boards, searchLabel, searchQuery, searchDate]);
 
-  const handleAddBoard = async () => {
+  const handleAddBoard = () => {
     if (!newBoardName.trim()) return alert("보드 이름을 입력하세요.");
-    const tempId = uuidv4();
     const newBoard = {
-      _id: tempId,
+      _id: uuidv4(),
       title: newBoardName,
       order: boards.length,
       todos: [],
@@ -49,6 +47,7 @@ export default function BoardList({ boardsWithTodos, labels }: BoardListProps) {
     addBoard(newBoard);
     setNewBoardName("");
   };
+
   return (
     <div className="w-full h-95vh grid grid-rows-12 mt-4 bg-gray-100">
       <header className="row-span-1 bg-white shadow-md p-4 flex items-center border-b justify-end">
@@ -131,7 +130,7 @@ export default function BoardList({ boardsWithTodos, labels }: BoardListProps) {
                   className="min-w-[30%] mx-[1.5%]"
                   key={`${board._id}-${board.title}`}
                 >
-                  <Board data={board} />
+                  <BoardComponent data={board} />
                 </div>
               ))}
             </div>
