@@ -31,14 +31,18 @@ export async function syncBoards(clientBoards: Board[]) {
       }
     });
 
-    // 3️⃣ 수정된 보드 찾기
+    // 3️⃣ 수정된 보드 찾기 (순서 변경도 포함)
     clientBoards.forEach((clientBoard) => {
       const serverBoard = transformedServerBoards.find(
         (b) => b._id === clientBoard._id
       );
+
       if (
         serverBoard &&
-        JSON.stringify(serverBoard) !== JSON.stringify(clientBoard)
+        (serverBoard.title !== clientBoard.title ||
+          serverBoard.order !== clientBoard.order || // ✅ 순서 변경 감지
+          JSON.stringify(serverBoard.todos) !==
+            JSON.stringify(clientBoard.todos))
       ) {
         updates.push({ type: "UPDATE", data: clientBoard });
       }
@@ -46,17 +50,21 @@ export async function syncBoards(clientBoards: Board[]) {
 
     // 변경된 사항이 없다면 종료
     if (updates.length === 0) {
-      return { success: true, message: "변경 사항 없음" };
+      return {
+        success: true,
+        message: "변경 사항 없음",
+        boards: transformedServerBoards,
+      };
     }
 
     // DB에 변경 사항 반영
     for (const update of updates) {
       if (update.type === "ADD") {
-        const newBoard = {
-          ...update.data,
-          _id: new ObjectId(update.data._id), // _id를 ObjectId로 변환
-        };
-        await boardsCollection.insertOne(newBoard);
+        const { _id, ...newBoard } = update.data; // 🔥 _id 제거
+        await boardsCollection.insertOne({
+          ...newBoard,
+          _id: new ObjectId(_id),
+        }); // ✅ ObjectId 변환 후 삽입
       } else if (update.type === "UPDATE") {
         const { _id, ...updateData } = update.data; // 🔥 _id 제외하고 업데이트
         await boardsCollection.updateOne(
@@ -66,11 +74,19 @@ export async function syncBoards(clientBoards: Board[]) {
       } else if (update.type === "DELETE") {
         await boardsCollection.deleteOne({
           _id: new ObjectId(update.data._id),
-        });
+        }); // ✅ ObjectId 변환 후 삭제
       }
     }
 
-    return { success: true, message: "동기화 완료", updates };
+    // 동기화 후 서버의 최신 데이터 다시 가져오기
+    const updatedBoards = await boardsCollection.find().toArray();
+    const transformedUpdatedBoards = transformObjectId(updatedBoards);
+
+    return {
+      success: true,
+      message: "동기화 완료",
+      boards: transformedUpdatedBoards,
+    };
   } catch (error) {
     console.error("syncBoards Error:", error);
     return { success: false, message: "동기화 실패" };

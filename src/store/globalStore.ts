@@ -106,7 +106,10 @@ export const useBoardStore = create<BoardStore>((set, get) => ({
   syncBoardsWithServer: async () => {
     const { boards } = get();
     const response = await syncBoards(boards);
-    console.log("동기화 결과:", response);
+
+    if (response.success && response.boards) {
+      set({ boards: response.boards });
+    }
   },
   ChangeOrderTodo: (boardId, todos) => {
     const { boards } = get();
