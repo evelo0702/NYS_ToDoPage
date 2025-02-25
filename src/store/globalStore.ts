@@ -1,7 +1,6 @@
 import { create } from "zustand";
 import { BoardStore } from "../types";
 import { syncBoards } from "../actions/boards/syncBoards.action";
-import { getBoardsAction } from "../actions/boards/getBoards.action";
 
 export const useBoardStore = create<BoardStore>((set, get) => ({
   boards: [],
