@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { BoardStore } from "../types";
+import { syncBoards } from "../actions/boards/syncBoards.action";
 
 export const useBoardStore = create<BoardStore>((set, get) => ({
   boards: [],
@@ -12,7 +13,6 @@ export const useBoardStore = create<BoardStore>((set, get) => ({
     const { boards, past } = get();
     set({
       boards: [...boards, board],
-
       past: [...past, { type: "ADD_BOARD", payload: board }],
       future: [],
     });
@@ -33,11 +33,11 @@ export const useBoardStore = create<BoardStore>((set, get) => ({
     const { boards, past } = get();
     const boardToUpdate = boards.find((i) => i._id === id);
     if (!boardToUpdate) return;
-
+    if (boardToUpdate.title === newTitle) return;
     const updatedBoard = { ...boardToUpdate, title: newTitle };
 
     set({
-      boards: boards.map((board) => (board._id === id ? updatedBoard : board)), // boards 배열을 불변성 유지하며 갱신
+      boards: boards.map((board) => (board._id === id ? updatedBoard : board)),
       past: [
         ...past,
         {
@@ -73,6 +73,12 @@ export const useBoardStore = create<BoardStore>((set, get) => ({
     const updatedTodos = boardToUpdate.todos.map((todo) =>
       todo._id === todoId ? { ...todo, ...updatedTodo } : todo
     );
+    if (
+      originalTodo[0].title === updatedTodo.title &&
+      originalTodo[0].content === updatedTodo.content &&
+      originalTodo[0].label === originalTodo[0].label
+    )
+      return;
 
     set({
       boards: boards.map((board) =>
@@ -97,6 +103,11 @@ export const useBoardStore = create<BoardStore>((set, get) => ({
       future: [],
     });
   },
+  syncBoardsWithServer: async () => {
+    const { boards } = get();
+    const response = await syncBoards(boards);
+    console.log("동기화 결과:", response);
+  },
   ChangeOrderTodo: (boardId, todos) => {
     const { boards } = get();
 
@@ -107,17 +118,44 @@ export const useBoardStore = create<BoardStore>((set, get) => ({
       ...todo,
       order: index,
     }));
+    const updateBoard = boards.map((i) =>
+      i._id === boardId ? { ...i, todos: updatedTodos } : i
+    );
 
-    const updatedBoard = {
-      ...boards[boardIndex],
-      todos: updatedTodos,
-    };
     set({
-      boards: boards.map((board, idx) =>
-        idx === boardIndex ? updatedBoard : board
-      ),
+      boards: updateBoard,
     });
   },
+  ChangeOrderBoards: (changeBoards) => {
+    set({ boards: changeBoards });
+  },
+
+  moveTodoToBoard: (todoId, newBoardId) => {
+    const { boards } = get();
+
+    // 현재 todo가 속한 보드 찾기
+    const prevBoard = boards.find((board) =>
+      board.todos.some((todo) => todo._id === todoId)
+    );
+
+    if (!prevBoard) return;
+
+    // 이동할 todo 찾기
+    const todo = prevBoard.todos.find((todo) => todo._id === todoId);
+    if (!todo) return;
+
+    // 이전 보드에서 todo 제거
+    prevBoard.todos = prevBoard.todos.filter((todo) => todo._id !== todoId);
+    // 새 보드에 todo 추가 (boardId 변경)
+    const newBoard = boards.find((board) => board._id === newBoardId);
+    if (newBoard) {
+      newBoard.todos.push({ ...todo, boardId: newBoardId });
+    }
+
+    // 상태 업데이트
+    set({ boards: [...boards] });
+  },
+
   undo: () => {
     const { past, future, boards } = get();
     if (past.length === 0) return;
