@@ -4,8 +4,8 @@ import { useState } from "react";
 import Todo from "./Todo";
 import { useBoardStore } from "../store/globalStore";
 import TodoAddModal from "./TodoAddModal";
-import { Board as BoardType } from "../types";
-
+import { Board as BoardType, Todo as TodoType } from "../types";
+import { Reorder } from "framer-motion";
 interface BoardProps {
   data: BoardType;
 }
@@ -13,9 +13,9 @@ interface BoardProps {
 export default function BoardComponent({ data }: BoardProps) {
   const [editMode, setEditMode] = useState(false);
   const [newTitle, setNewTitle] = useState(data.title);
-  const { deleteBoard, updateBoard, labelList } = useBoardStore();
+  const { ChangeOrderTodo, deleteBoard, updateBoard, labelList } =
+    useBoardStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
-
   const handleUpdateBoard = () => {
     if (newTitle.trim() === "") {
       alert("보드명을 입력해주세요");
@@ -35,9 +35,12 @@ export default function BoardComponent({ data }: BoardProps) {
       deleteBoard(data._id);
     }
   };
+  const handleReorder = (newItems: TodoType[]) => {
+    ChangeOrderTodo(data._id, newItems);
+  };
 
   return (
-    <div className="bg-white rounded-xl shadow-lg p-4 h-full flex flex-col">
+    <div className="bg-white rounded-xl shadow-lg p-4 h-full flex flex-col border-2 border-gray-400">
       <div className="">
         <div className="flex justify-between">
           <div className="">
@@ -59,21 +62,21 @@ export default function BoardComponent({ data }: BoardProps) {
           <div className="w-1/5 flex">
             {editMode ? (
               <button
-                className="text-blue-500 font-bold"
+                className="text-blue-500  text-lg font-extrabold"
                 onClick={handleUpdateBoard}
               >
                 완료
               </button>
             ) : (
               <button
-                className="text-gray-500 font-bold"
+                className="text-lg font-extrabold"
                 onClick={() => setEditMode(true)}
               >
                 수정
               </button>
             )}
             <button
-              className="col-span-1 text-red-700 font-bold ms-2"
+              className="col-span-1 text-red-700 text-lg font-extrabold ms-2"
               onClick={handleDeleteBoard}
             >
               삭제
@@ -81,7 +84,7 @@ export default function BoardComponent({ data }: BoardProps) {
           </div>
         </div>
         <button
-          className="mt-2 w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition"
+          className="mt-2 w-full bg-black text-white py-2 rounded-md  transition"
           onClick={() => {
             setIsModalOpen(true);
           }}
@@ -89,14 +92,13 @@ export default function BoardComponent({ data }: BoardProps) {
           + 할 일 추가
         </button>
       </div>
-      <div className="mt-4 flex-col space-y-2 p-2 h-full overflow-y-auto">
+      <div className="mt-4 flex-col space-y-2 p-2 h-full overflow-y-auto  scrollbar-hide">
         {data.todos.length > 0 ? (
-          data.todos.map((todo) => (
-            <Todo
-              key={`${todo._id}+${todo.title}=${todo.content}`}
-              data={todo}
-            />
-          ))
+          <Reorder.Group axis="y" onReorder={handleReorder} values={data.todos}>
+            {data.todos.map((i) => (
+              <Todo key={`${i._id}+${i.title}+${i.content}+${i.order}`} data={i} />
+            ))}
+          </Reorder.Group>
         ) : (
           <div className="text-gray-400 text-center py-6">
             새로운 할 일을 추가해주세요
