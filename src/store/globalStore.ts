@@ -107,9 +107,7 @@ export const useBoardStore = create<BoardStore>((set, get) => ({
   syncBoardsWithServer: async () => {
     const { boards } = get();
     const response = await syncBoards(boards);
-    const res = await getBoardsAction();
-    console.log(res);
-
+   
     if (response.success && response.boards) {
       set({ boards: response.boards });
     }
