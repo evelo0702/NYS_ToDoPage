@@ -5,10 +5,11 @@ import { Board, Label } from "../types";
 import BoardComponent from "./BoardComponent";
 import SearchBar from "./SearchBar";
 import SearchList from "./SearchList";
-import Slider from "./Slider";
 import { useBoardStore } from "../store/globalStore";
 import { filterBoards } from "../lib/filterBoards";
 import { v4 as uuidv4 } from "uuid";
+import Xslider from "../components/Xslider";
+import { FaArrowRotateLeft, FaArrowRotateRight } from "react-icons/fa6";
 
 interface BoardListProps {
   BoardsData: Board[] | null;
@@ -49,11 +50,11 @@ export default function BoardList({ BoardsData, labels }: BoardListProps) {
   };
 
   return (
-    <div className="w-full h-95vh grid grid-rows-12 mt-4 bg-gray-100">
-      <header className="row-span-1 bg-white shadow-md p-4 flex items-center border-b justify-end">
-        <div className="w-3/4 flex justify-end">
+    <div className="w-full h-95vh grid grid-rows-12 mt-4">
+      <header className="row-span-1 bg-white  p-4 flex items-center  justify-end ">
+        <div className="w-3/4 flex justify-end h-full">
           <button
-            className="me-2 hover:bg-blue-200 p-2 rounded-md"
+            className="me-2 bg-black text-white p-2 rounded-md"
             onClick={() => {
               setSearchDate(null);
               setSearchLabel(null);
@@ -68,7 +69,7 @@ export default function BoardList({ BoardsData, labels }: BoardListProps) {
             setSearchLabel={setSearchLabel}
             setSearchDate={setSearchDate}
             labels={labels}
-          />{" "}
+          />
           <SearchBar
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
@@ -86,7 +87,7 @@ export default function BoardList({ BoardsData, labels }: BoardListProps) {
             } border border-black py-2 px-6 rounded-lg transition duration-300 me-2`}
             onClick={undo}
           >
-            실행 취소
+            <FaArrowRotateLeft />
           </button>
           <button
             disabled={future.length === 0}
@@ -97,7 +98,7 @@ export default function BoardList({ BoardsData, labels }: BoardListProps) {
             } border border-black py-2 px-6 rounded-lg transition duration-300`}
             onClick={redo}
           >
-            재실행
+            <FaArrowRotateRight />
           </button>
         </div>
         <div className="flex border shadow-md w-1/4">
@@ -109,7 +110,7 @@ export default function BoardList({ BoardsData, labels }: BoardListProps) {
             onChange={(e) => setNewBoardName(e.target.value)}
           />
           <button
-            className="p-2 w-1/2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
+            className="p-2 w-1/2 bg-black text-white  rounded-md transition"
             onClick={handleAddBoard}
           >
             + 보드 추가
@@ -118,12 +119,12 @@ export default function BoardList({ BoardsData, labels }: BoardListProps) {
       </div>
 
       {/* 좌우 버튼 & 보드 리스트 */}
-      <div className="relative flex row-span-10 items-center">
+      <div className="relative flex row-span-10 items-center ">
         {filteredBoards.length > 0 ? (
-          <Slider scrollContainerRef={scrollContainerRef}>
+          <Xslider scrollContainerRef={scrollContainerRef}>
             <div
               ref={scrollContainerRef}
-              className="flex w-full h-full overflow-x-auto py-6 scroll-smooth"
+              className="flex w-full h-full overflow-x-auto py-6 scroll-smooth ps-3"
             >
               {filteredBoards.map((board) => (
                 <div
@@ -134,7 +135,7 @@ export default function BoardList({ BoardsData, labels }: BoardListProps) {
                 </div>
               ))}
             </div>
-          </Slider>
+          </Xslider>
         ) : (
           <div className="flex justify-center items-center w-full h-full text-center text-gray-600 bg-gray-200 rounded-lg shadow-lg">
             <p className="text-xl font-semibold">작성된 Todo가 없습니다</p>
