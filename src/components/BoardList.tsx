@@ -13,6 +13,7 @@ import { FaArrowRotateLeft, FaArrowRotateRight } from "react-icons/fa6";
 import BoardOrderChangeModal from "./BoardOrderChangeModal";
 import { TfiSave } from "react-icons/tfi";
 import { syncBoards } from "../actions/boards/syncBoards.action";
+import { getBoardsAction } from "../actions/boards/getBoards.action";
 
 interface BoardListProps {
   BoardsData: Board[] | null;
@@ -64,15 +65,25 @@ export default function BoardList({ BoardsData, labels }: BoardListProps) {
   useEffect(() => {
     const handleSync = async () => {
       if (boards.length > 0) {
-        await syncBoards(boards);
-        console.log("자동 저장 완료");
+        try {
+          await syncBoards(boards);
+          const res = await getBoardsAction();
+          console.log(res);
+          console.log("자동 저장 완료");
+        } catch (error) {
+          console.error("자동 저장 중 오류 발생", error);
+        }
       }
     };
 
-    window.addEventListener("beforeunload", handleSync);
+    const beforeUnloadHandler = () => {
+      handleSync();
+    };
+
+    window.addEventListener("beforeunload", beforeUnloadHandler);
 
     return () => {
-      window.removeEventListener("beforeunload", handleSync);
+      window.removeEventListener("beforeunload", beforeUnloadHandler);
       handleSync();
     };
   }, [boards]);

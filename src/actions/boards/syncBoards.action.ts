@@ -1,5 +1,4 @@
 "use server";
-export const dynamic = "force-dynamic";
 import { connectDB } from "@/src/lib/mongodb";
 import { transformObjectId } from "@/src/lib/changeStringId";
 import { Board } from "@/src/types";
@@ -64,17 +63,17 @@ export async function syncBoards(clientBoards: Board[]) {
         await boardsCollection.insertOne({
           ...newBoard,
           _id: new ObjectId(_id),
-        }); 
+        });
       } else if (update.type === "UPDATE") {
-        const { _id, ...updateData } = update.data; 
+        const { _id, ...updateData } = update.data;
         await boardsCollection.updateOne(
           { _id: new ObjectId(_id) },
-          { $set: updateData } 
+          { $set: updateData }
         );
       } else if (update.type === "DELETE") {
         await boardsCollection.deleteOne({
           _id: new ObjectId(update.data._id),
-        }); 
+        });
       }
     }
 
