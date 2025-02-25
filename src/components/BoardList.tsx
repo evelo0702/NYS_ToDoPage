@@ -89,8 +89,8 @@ export default function BoardList({ BoardsData, labels }: BoardListProps) {
   }, [boards]);
 
   return (
-    <div className="w-full h-95vh grid grid-rows-12 mt-4 border border-gray-600 rounded-md">
-      <div className="row-span-1   p-4 flex items-center  justify-between border-b border-gray-400 bg-gray-600">
+    <div className="w-full h-95vh grid grid-rows-12 mt-4  rounded-md">
+      <div className="row-span-1   p-4 flex items-center  justify-between border-b border-gray-400">
         <button
           className="flex text-xl h-full  p-2 rounded-md items-center ms-4  font-bold  bg-gray-100 text-black"
           onClick={syncBoardsWithServer}
@@ -122,7 +122,7 @@ export default function BoardList({ BoardsData, labels }: BoardListProps) {
           />
         </div>
       </div>
-      <div className="row-span-1 flex justify-between items-center px-8  ">
+      <div className="row-span-1 flex justify-between items-center px-8 border-b border-gray-40 ">
         <div>
           <button
             disabled={past.length === 0}
@@ -156,13 +156,13 @@ export default function BoardList({ BoardsData, labels }: BoardListProps) {
             onChange={(e) => setNewBoardName(e.target.value)}
           />
           <button
-            className="p-2 w-1/6 bg-black text-white font-bold opacity-50 rounded-md"
+            className="p-2 w-1/6 bg-gray-100 text-black font-bold  rounded-md"
             onClick={handleAddBoard}
           >
             + 보드 추가
           </button>
           <button
-            className="p-2 w-1/5 ms-4 bg-black text-white font-bold  opacity-50  rounded-md transition"
+            className="p-2 w-1/5 ms-4 bg-gray-100 text-black font-bold    rounded-md transition"
             onClick={() => setIsModalOpen(true)}
           >
             보드 순서 변경
@@ -171,7 +171,7 @@ export default function BoardList({ BoardsData, labels }: BoardListProps) {
       </div>
 
       {/* 좌우 버튼 & 보드 리스트 */}
-      <div className="relative flex row-span-10 items-center bg-gray-600">
+      <div className="relative flex row-span-10 items-center ">
         {filteredBoards.length > 0 ? (
           <Xslider scrollContainerRef={scrollContainerRef}>
             <div

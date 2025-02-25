@@ -60,7 +60,7 @@ export default function Todo({ data, boardEditMode }: TodoProps) {
           onChange={(e) =>
             setNewTodo((prev) => ({ ...prev, title: e.target.value }))
           }
-          className="text-lg font-semibold mt-1 p-1 border-b border-gray-400"
+          className="text-lg font-semibold mt-1 p-1 border-b "
         />
       ) : (
         <h2 className="text-lg font-semibold mt-1">{data.title}</h2>
@@ -159,7 +159,7 @@ export default function Todo({ data, boardEditMode }: TodoProps) {
       onChange={(e) =>
         setNewTodo((prev) => ({ ...prev, content: e.target.value }))
       }
-      className="w-full p-2 mt-2 border border-gray-300 rounded-md"
+      className="w-full p-2 mt-2 border  rounded-md"
       rows={3}
     />
   );
@@ -168,7 +168,7 @@ export default function Todo({ data, boardEditMode }: TodoProps) {
     <>
       {boardEditMode ? (
         <Reorder.Item value={data} id={data._id} style={{ y }}>
-          <div className="p-3 rounded-lg shadow-sm bg-gray-300 my-2">
+          <div className="p-3 rounded-lg shadow-sm border-4 border-gray-300 my-2">
             {renderTodoContent()}
             <div className="text-sm  flex justify-between">
               <span>{data.author}</span>
@@ -179,7 +179,7 @@ export default function Todo({ data, boardEditMode }: TodoProps) {
           </div>
         </Reorder.Item>
       ) : (
-        <div className="p-3 rounded-lg shadow-sm bg-gray-300 my-2">
+        <div className="p-3 rounded-lg shadow-sm border-4 border-gray-300 my-2">
           {renderTodoContent()}
           <div className="text-sm  flex justify-between">
             <span>{data.author}</span>

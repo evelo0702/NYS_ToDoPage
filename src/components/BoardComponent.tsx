@@ -40,7 +40,7 @@ export default function BoardComponent({ data }: BoardProps) {
     setItems(newItems);
   };
   return (
-    <div className="bg-white rounded-xl shadow-lg p-4 h-full flex flex-col border-2 border-gray-400">
+    <div className="bg-white rounded-xl shadow-lg p-4 h-full flex flex-col  border-l-4 border-indigo-300 ">
       <div className="">
         <div className="flex justify-between">
           <div className="">
@@ -84,7 +84,7 @@ export default function BoardComponent({ data }: BoardProps) {
           </div>
         </div>
         <button
-          className="mt-2 w-full bg-gray-800 text-white font-bold  rounded-md py-2"
+          className="mt-2 w-full bg-gray-100 border border-gray-300 text-gray-800 font-bold  rounded-md py-2"
           onClick={() => {
             setIsModalOpen(true);
           }}
