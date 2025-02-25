@@ -13,6 +13,7 @@ interface BoardProps {
 export default function BoardComponent({ data }: BoardProps) {
   const [editMode, setEditMode] = useState(false);
   const [newTitle, setNewTitle] = useState(data.title);
+  const [items, setItems] = useState(data.todos);
   const { ChangeOrderTodo, deleteBoard, updateBoard, labelList } =
     useBoardStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -36,9 +37,9 @@ export default function BoardComponent({ data }: BoardProps) {
     }
   };
   const handleReorder = (newItems: TodoType[]) => {
+    setItems(newItems);
     ChangeOrderTodo(data._id, newItems);
   };
-
   return (
     <div className="bg-white rounded-xl shadow-lg p-4 h-full flex flex-col border-2 border-gray-400">
       <div className="">
@@ -93,10 +94,13 @@ export default function BoardComponent({ data }: BoardProps) {
         </button>
       </div>
       <div className="mt-4 flex-col space-y-2 p-2 h-full overflow-y-auto  scrollbar-hide">
-        {data.todos.length > 0 ? (
-          <Reorder.Group axis="y" onReorder={handleReorder} values={data.todos}>
-            {data.todos.map((i) => (
-              <Todo key={`${i._id}+${i.title}+${i.content}+${i.order}`} data={i} />
+        {items.length > 0 ? (
+          <Reorder.Group axis="y" onReorder={handleReorder} values={items}>
+            {items.map((i) => (
+              <Todo
+                key={`${i._id}+${i.title}+${i.content}+${i.order}`}
+                data={i}
+              />
             ))}
           </Reorder.Group>
         ) : (

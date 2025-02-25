@@ -97,6 +97,27 @@ export const useBoardStore = create<BoardStore>((set, get) => ({
       future: [],
     });
   },
+  ChangeOrderTodo: (boardId, todos) => {
+    const { boards } = get();
+
+    const boardIndex = boards.findIndex((b) => b._id === boardId);
+    if (boardIndex === -1) return;
+
+    const updatedTodos = todos.map((todo, index) => ({
+      ...todo,
+      order: index,
+    }));
+
+    const updatedBoard = {
+      ...boards[boardIndex],
+      todos: updatedTodos,
+    };
+    set({
+      boards: boards.map((board, idx) =>
+        idx === boardIndex ? updatedBoard : board
+      ),
+    });
+  },
   undo: () => {
     const { past, future, boards } = get();
     if (past.length === 0) return;
