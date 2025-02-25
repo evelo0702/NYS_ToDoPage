@@ -1,5 +1,5 @@
 "use server";
-
+export const dynamic = "force-dynamic";
 import { connectDB } from "@/src/lib/mongodb";
 import { transformObjectId } from "@/src/lib/changeStringId";
 import { Board } from "@/src/types";
@@ -17,21 +17,21 @@ export async function syncBoards(clientBoards: Board[]) {
     // 추가, 수정, 삭제될 항목들 구분
     const updates: { type: "ADD" | "UPDATE" | "DELETE"; data: Board }[] = [];
 
-    // 1️⃣ 클라이언트에 있는데 서버에 없는 보드 → 추가
+    //  클라이언트에 있는데 서버에 없는 보드 → 추가
     clientBoards.forEach((clientBoard) => {
       if (!transformedServerBoards.some((b) => b._id === clientBoard._id)) {
         updates.push({ type: "ADD", data: clientBoard });
       }
     });
 
-    // 2️⃣ 서버에 있는데 클라이언트에 없는 보드 → 삭제
+    // 서버에 있는데 클라이언트에 없는 보드 → 삭제
     transformedServerBoards.forEach((serverBoard) => {
       if (!clientBoards.some((b) => b._id === serverBoard._id)) {
         updates.push({ type: "DELETE", data: serverBoard });
       }
     });
 
-    // 3️⃣ 수정된 보드 찾기 (순서 변경도 포함)
+    // 수정된 보드 찾기 (순서 변경도 포함)
     clientBoards.forEach((clientBoard) => {
       const serverBoard = transformedServerBoards.find(
         (b) => b._id === clientBoard._id
@@ -40,7 +40,7 @@ export async function syncBoards(clientBoards: Board[]) {
       if (
         serverBoard &&
         (serverBoard.title !== clientBoard.title ||
-          serverBoard.order !== clientBoard.order || // ✅ 순서 변경 감지
+          serverBoard.order !== clientBoard.order || // 순서 변경 감지
           JSON.stringify(serverBoard.todos) !==
             JSON.stringify(clientBoard.todos))
       ) {
@@ -60,21 +60,21 @@ export async function syncBoards(clientBoards: Board[]) {
     // DB에 변경 사항 반영
     for (const update of updates) {
       if (update.type === "ADD") {
-        const { _id, ...newBoard } = update.data; // 🔥 _id 제거
+        const { _id, ...newBoard } = update.data;
         await boardsCollection.insertOne({
           ...newBoard,
           _id: new ObjectId(_id),
-        }); // ✅ ObjectId 변환 후 삽입
+        }); 
       } else if (update.type === "UPDATE") {
-        const { _id, ...updateData } = update.data; // 🔥 _id 제외하고 업데이트
+        const { _id, ...updateData } = update.data; 
         await boardsCollection.updateOne(
-          { _id: new ObjectId(_id) }, // ✅ _id 조건만 사용
-          { $set: updateData } // ✅ _id 제외한 필드만 업데이트
+          { _id: new ObjectId(_id) },
+          { $set: updateData } 
         );
       } else if (update.type === "DELETE") {
         await boardsCollection.deleteOne({
           _id: new ObjectId(update.data._id),
-        }); // ✅ ObjectId 변환 후 삭제
+        }); 
       }
     }
 
