@@ -10,6 +10,9 @@ import { filterBoards } from "../lib/filterBoards";
 import { v4 as uuidv4 } from "uuid";
 import Xslider from "../components/Xslider";
 import { FaArrowRotateLeft, FaArrowRotateRight } from "react-icons/fa6";
+import BoardOrderChangeModal from "./BoardOrderChangeModal";
+import { TfiSave } from "react-icons/tfi";
+import { syncBoards } from "../actions/boards/syncBoards.action";
 
 interface BoardListProps {
   BoardsData: Board[] | null;
@@ -22,9 +25,18 @@ export default function BoardList({ BoardsData, labels }: BoardListProps) {
   const [searchDate, setSearchDate] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string | "">("");
   const [newBoardName, setNewBoardName] = useState<string | "">("");
-
-  const { boards, setBoards, setLabels, addBoard, undo, redo, past, future } =
-    useBoardStore();
+  const {
+    syncBoardsWithServer,
+    boards,
+    setBoards,
+    setLabels,
+    addBoard,
+    undo,
+    redo,
+    past,
+    future,
+  } = useBoardStore();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     if (BoardsData && labels) {
@@ -49,12 +61,35 @@ export default function BoardList({ BoardsData, labels }: BoardListProps) {
     setNewBoardName("");
   };
 
+  useEffect(() => {
+    const handleSync = async () => {
+      if (boards.length > 0) {
+        await syncBoards(boards);
+        console.log("자동 저장 완료");
+      }
+    };
+
+    window.addEventListener("beforeunload", handleSync);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleSync);
+      handleSync();
+    };
+  }, [boards]);
+
   return (
-    <div className="w-full h-95vh grid grid-rows-12 mt-4">
-      <header className="row-span-1 bg-white  p-4 flex items-center  justify-end ">
+    <div className="w-full h-95vh grid grid-rows-12 mt-4 border border-gray-600 rounded-md">
+      <div className="row-span-1   p-4 flex items-center  justify-between border-b border-gray-400 bg-gray-600">
+        <button
+          className="flex text-xl h-full  p-2 rounded-md items-center ms-4  font-bold  bg-gray-100 text-black"
+          onClick={syncBoardsWithServer}
+        >
+          <TfiSave />
+          <p className="ms-2">Todo 저장하기</p>
+        </button>
         <div className="w-3/4 flex justify-end h-full">
           <button
-            className="me-2 bg-black text-white p-2 rounded-md"
+            className="me-2 font-bold  rounded-md p-2 bg-gray-100 text-black"
             onClick={() => {
               setSearchDate(null);
               setSearchLabel(null);
@@ -75,8 +110,8 @@ export default function BoardList({ BoardsData, labels }: BoardListProps) {
             setSearchQuery={setSearchQuery}
           />
         </div>
-      </header>
-      <div className="row-span-1 flex justify-between items-center px-8 ">
+      </div>
+      <div className="row-span-1 flex justify-between items-center px-8  ">
         <div>
           <button
             disabled={past.length === 0}
@@ -101,25 +136,31 @@ export default function BoardList({ BoardsData, labels }: BoardListProps) {
             <FaArrowRotateRight />
           </button>
         </div>
-        <div className="flex border shadow-md w-1/4">
+        <div className="flex  w-1/2 justify-end">
           <input
             type="text"
             placeholder="보드 이름"
-            className="p-2 w-full border-none outline-none rounded-lg"
+            className="p-2 rounded-md w-1/3 border border-gray-400"
             value={newBoardName}
             onChange={(e) => setNewBoardName(e.target.value)}
           />
           <button
-            className="p-2 w-1/2 bg-black text-white  rounded-md transition"
+            className="p-2 w-1/6 bg-black text-white font-bold opacity-50 rounded-md"
             onClick={handleAddBoard}
           >
             + 보드 추가
+          </button>
+          <button
+            className="p-2 w-1/5 ms-4 bg-black text-white font-bold  opacity-50  rounded-md transition"
+            onClick={() => setIsModalOpen(true)}
+          >
+            보드 순서 변경
           </button>
         </div>
       </div>
 
       {/* 좌우 버튼 & 보드 리스트 */}
-      <div className="relative flex row-span-10 items-center ">
+      <div className="relative flex row-span-10 items-center bg-gray-600">
         {filteredBoards.length > 0 ? (
           <Xslider scrollContainerRef={scrollContainerRef}>
             <div
@@ -129,7 +170,7 @@ export default function BoardList({ BoardsData, labels }: BoardListProps) {
               {filteredBoards.map((board) => (
                 <div
                   className="min-w-[30%] mx-[1.5%]"
-                  key={`${board._id}-${board.title}`}
+                  key={`${board._id}-${board.title}-${board.todos[0]._id}`}
                 >
                   <BoardComponent data={board} />
                 </div>
@@ -142,6 +183,13 @@ export default function BoardList({ BoardsData, labels }: BoardListProps) {
           </div>
         )}
       </div>
+      {isModalOpen && (
+        <BoardOrderChangeModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          boards={boards}
+        />
+      )}
     </div>
   );
 }
