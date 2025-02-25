@@ -20,7 +20,7 @@ export default function Xslider({ children, scrollContainerRef }: SliderProps) {
   return (
     <>
       <button
-        className="absolute left-0 z-10 p-3 text-2xl"
+        className="absolute left-0 z-10 p-3 text-2xl font-extrabold"
         onClick={() => scroll("left")}
       >
         <BiSolidLeftArrow />
@@ -29,7 +29,7 @@ export default function Xslider({ children, scrollContainerRef }: SliderProps) {
       {children}
 
       <button
-        className="absolute right-0 z-10 p-3 text-2xl"
+        className="absolute right-0 z-10 p-3 text-2xl font-extrabold"
         onClick={() => scroll("right")}
       >
         <BiSolidRightArrow />
