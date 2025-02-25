@@ -12,13 +12,13 @@ interface TodoAddModalProps {
   length: number;
 }
 
-const TodoAddModal: React.FC<TodoAddModalProps> = ({
+const TodoAddModal = ({
   isOpen,
   onClose,
   labels,
   boardId,
   length,
-}) => {
+}: TodoAddModalProps) => {
   const [todoForm, setTodoForm] = useState({
     _id: "",
     author: "",
@@ -90,7 +90,7 @@ const TodoAddModal: React.FC<TodoAddModalProps> = ({
     >
       <div
         className="bg-white p-6 rounded-lg shadow-lg w-1/3"
-        onClick={(e) => e.stopPropagation()} // 모달 외부 클릭 시 닫히지 않도록
+        onClick={(e) => e.stopPropagation()} 
       >
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-semibold">할 일 추가</h2>
@@ -151,7 +151,7 @@ const TodoAddModal: React.FC<TodoAddModalProps> = ({
             value={todoForm.label.id}
             onChange={handleChange}
           >
-            <option value="">선택하세요</option>
+            <option value="">라벨 선택</option>
             {labels.map((label) => (
               <option key={label._id} value={label._id}>
                 {label.title}
