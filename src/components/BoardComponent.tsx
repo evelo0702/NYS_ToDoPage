@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Todo from "./Todo";
 import { useBoardStore } from "../store/globalStore";
 import TodoAddModal from "./TodoAddModal";
@@ -13,20 +13,16 @@ interface BoardProps {
 export default function BoardComponent({ data }: BoardProps) {
   const [editMode, setEditMode] = useState(false);
   const [newTitle, setNewTitle] = useState(data.title);
-  const [items, setItems] = useState(data.todos);
   const { ChangeOrderTodo, deleteBoard, updateBoard, labelList } =
     useBoardStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [items, setItems] = useState(data.todos);
   const handleUpdateBoard = () => {
     if (newTitle.trim() === "") {
       alert("보드명을 입력해주세요");
       return;
     }
-    if (data.title.trim() == newTitle.trim()) {
-      alert("기존 보드명과 동일합니다");
-      setEditMode(false);
-      return;
-    }
+    ChangeOrderTodo(data._id, items);
     updateBoard(data._id!, newTitle);
     setEditMode(false);
   };
@@ -36,9 +32,12 @@ export default function BoardComponent({ data }: BoardProps) {
       deleteBoard(data._id);
     }
   };
+  useEffect(() => {
+    setItems(data.todos);
+  }, [data]);
+
   const handleReorder = (newItems: TodoType[]) => {
     setItems(newItems);
-    ChangeOrderTodo(data._id, newItems);
   };
   return (
     <div className="bg-white rounded-xl shadow-lg p-4 h-full flex flex-col border-2 border-gray-400">
@@ -85,7 +84,7 @@ export default function BoardComponent({ data }: BoardProps) {
           </div>
         </div>
         <button
-          className="mt-2 w-full bg-black text-white py-2 rounded-md  transition"
+          className="mt-2 w-full bg-gray-800 text-white font-bold  rounded-md py-2"
           onClick={() => {
             setIsModalOpen(true);
           }}
@@ -94,15 +93,26 @@ export default function BoardComponent({ data }: BoardProps) {
         </button>
       </div>
       <div className="mt-4 flex-col space-y-2 p-2 h-full overflow-y-auto  scrollbar-hide">
-        {items.length > 0 ? (
+        {editMode && items.length > 0 ? (
           <Reorder.Group axis="y" onReorder={handleReorder} values={items}>
             {items.map((i) => (
               <Todo
-                key={`${i._id}+${i.title}+${i.content}+${i.order}`}
+                key={`${i._id}+${i.title}+${i.content}+${i.boardId}+${i.order}`}
                 data={i}
+                boardEditMode={editMode}
               />
             ))}
           </Reorder.Group>
+        ) : !editMode && data.todos.length > 0 ? (
+          <div>
+            {data.todos.map((i) => (
+              <Todo
+                key={`${i._id}+${i.title}+${i.content}+${i.boardId}+${i.order}`}
+                data={i}
+                boardEditMode={editMode}
+              />
+            ))}
+          </div>
         ) : (
           <div className="text-gray-400 text-center py-6">
             새로운 할 일을 추가해주세요
